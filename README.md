@@ -1,6 +1,6 @@
 # AI Job Search Automation — LinkedIn & Naukri
 
-A local-first job-search and application automation MVP built with **Node.js, Playwright, Microsoft Edge, Ollama/Qwen, and n8n**.
+A local-first job-search and application automation MVP built with **Node.js, Playwright, Microsoft Edge, and Ollama/Qwen**.
 
 The project currently combines two workflows:
 
@@ -157,7 +157,6 @@ Naukri presents questions sequentially, so Qwen is called **one question at a ti
 | LinkedIn automation | Playwright |
 | Local LLM | Ollama |
 | LLM model | Qwen 3 4B |
-| Workflow automation | n8n |
 | Configuration | JSON |
 | Resume/context | Markdown |
 | Application history | JSON |
@@ -228,7 +227,6 @@ Naukri presents questions sequentially, so Qwen is called **one question at a ti
 │
 ├── workflows/
 │
-├── jobs-today.bat
 ├── apply-naukri-jobs.bat
 ├── package.json
 └── package-lock.json
@@ -294,14 +292,7 @@ Do not use the same profile simultaneously from multiple Edge/Playwright process
 
 ## 4. Ollama + Qwen
 
-Install Ollama 
-```Powershell
-irm https://ollama.com/install.ps1 | iex
-```
-Verify
-```Powershell
-ollama --version
-```
+Install Ollama separately and make sure the local Ollama service is running.
 
 Pull the configured model:
 
@@ -510,55 +501,6 @@ This allows temporary failures or unresolved questions to be retried on a later 
 
 ---
 
-# LinkedIn Automation — Run Without n8n
-
-The LinkedIn MVP can also run without n8n.
-
-Use:
-
-```cmd
-run-linkedin-automation.bat
-```
-
-It runs the same sequential core pipeline that was previously orchestrated through n8n:
-
-```text
-Search
-  ↓
-Fit
-  ↓
-JD
-  ↓
-Resume
-  ↓
-LinkedIn Apply
-  ↓
-Dashboard
-```
-
-Each Node.js command finishes before the next command starts.
-
-If any step returns a non-zero exit code, the batch stops and does not continue.
-
-Before running it:
-
-1. Log in to LinkedIn using `start-edge-login.bat`.
-2. Close Edge after login.
-3. Make sure the required LinkedIn search CLI is installed/configured.
-4. Start Ollama if the workflow requires Qwen.
-
-Then run:
-
-```cmd
-run-linkedin-automation.bat
-```
-
-n8n is therefore **optional for this MVP**. The existing `jobs-today.bat` can remain available if the n8n workflow is still desired.
-
-### LinkedIn search CLI prerequisite
-
-The current `scripts/search-agent.js` contains a machine-specific path to the LinkedIn search CLI. When moving the project to another computer, update that path to the local installation.
-
 # LinkedIn Workflow
 
 The LinkedIn pipeline is designed around:
@@ -588,25 +530,42 @@ scripts/apply-agent.js
 scripts/dashboard-agent.js
 ```
 
-The existing `jobs-today.bat` starts the n8n-backed workflow.
+The project uses Microsoft Edge with a dedicated persistent automation profile.
 
-The LinkedIn search agent also depends on the project's configured local LinkedIn-search CLI path. If you move the repository to another machine, update the path used by `scripts/search-agent.js`.
+### Start Edge and log in
 
----
-
-# n8n
-
-The LinkedIn daily workflow uses a local n8n instance.
-
-The batch file:
+Run:
 
 ```cmd
-jobs-today.bat
+start-edge-login.bat
 ```
 
-checks whether n8n is listening on port `5678`, starts it if necessary, and triggers the configured webhook.
+This creates the runtime Edge profile under:
 
-The n8n workflow itself is not intended to be treated as a portable credential/configuration file in this repository. Recreate/import the workflow separately when setting up another machine.
+```text
+output/edge-automation-profile/
+```
+
+Log in manually to LinkedIn and Naukri using that dedicated Edge profile. After login, close Edge before starting the automation.
+
+### Run LinkedIn
+
+Run the LinkedIn agents individually in this order:
+
+```cmd
+node scripts\search-agent.js
+node scripts\fit-agent.js
+node scripts\jd-agent.js
+node scripts\resume-agent.js
+node scripts\apply-agent.js
+node scripts\dashboard-agent.js
+```
+
+Each step should complete successfully before starting the next one.
+
+### LinkedIn search CLI prerequisite
+
+The LinkedIn search agent depends on the configured local LinkedIn-search CLI. If you move the project to another computer, make sure that CLI is installed and that its configured path is valid on the new machine.
 
 ---
 
@@ -770,8 +729,7 @@ Current limitations include:
 - Windows-oriented paths and batch files.
 - Microsoft Edge is the supported browser.
 - LinkedIn search depends on a locally configured search CLI.
-- n8n workflow configuration is external to this repository.
-- Naukri/LinkedIn UI changes can break selectors.
+- - Naukri/LinkedIn UI changes can break selectors.
 - Application questions that cannot be safely resolved require review.
 - External career-site applications are intentionally not automated by the Naukri workflow.
 - No CAPTCHA/security-verification bypass is implemented.
@@ -841,7 +799,6 @@ for the project's development rules.
 Possible future work:
 
 - Better cross-platform path/configuration support.
-- Portable n8n workflow setup.
 - More robust application tracking.
 - Additional job portals.
 - Improved review/notification workflow.

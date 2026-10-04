@@ -1,0 +1,9 @@
+{
+  "enabled": true,
+  "provider": "ollama",
+  "baseUrl": "http://localhost:11434",
+  "model": "qwen3:4b",
+  "timeoutMs": 60000,
+  "temperature": 0,
+  "confidenceThreshold": 0.85
+}

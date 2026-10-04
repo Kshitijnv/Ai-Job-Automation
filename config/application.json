@@ -1,0 +1,173 @@
+{
+  "_instructions": {
+    "description": "Copy this file to config/application.json and replace the example/default values with your own truthful information.",
+    "experienceRule": "Use numeric years for total/skill experience. Use 0 when you do not have that skill.",
+    "qwenRule": "Qwen is only a fallback for questions that cannot be answered safely from this file and the resume.",
+    "doNotGuess": "Never enter guessed personal information. Leave unresolved questions for user input."
+  },
+
+  "automation": {
+    "formReadinessTimeoutMs": 20000
+  },
+
+  "experienceYears": 3,
+
+  "contact": {
+    "phoneCountry": "India"
+  },
+
+  "salary": {
+    "currentCTC": 8,
+    "expectedCTC": 13,
+    "currency": "INR"
+  },
+
+  "answers": {
+    "experience": {
+      "totalYears": 3
+    },
+
+    "contact": {
+      "location": "Pune",
+      "preferredLocation": "Pune, Noida, Gurugram, Delhi/NCR",
+      "currentLocation": "Pune"
+    },
+
+    "noticePeriod": {
+      "days": 90,
+      "months": 3,
+      "servingNoticePeriod": true,
+      "lastWorkingDay": "20 October 2026"
+    },
+
+    "salary": {
+      "currentCTC": 8,
+      "expectedCTC": 13,
+      "currency": "INR"
+    },
+
+    "employment": {
+      "currentlyEmployed": true,
+      "activelyLooking": true
+    },
+
+    "workPreferences": {
+      "willingToRelocate": true,
+      "workAuthorization": "India",
+      "visaSponsorshipRequired": false,
+      "nightShift": true,
+      "hybridNoida": true,
+      "relocateGurugram": true,
+      "relocateNoida": true,
+      "relocateDelhiNCR": true,
+      "willingToTravelForInterview": false
+    },
+
+    "relocation": {
+      "willingToRelocate": true,
+      "locations": [
+        "Remote",
+        "Pune",
+        "Gurugram",
+        "Noida",
+        "Delhi/NCR"
+      ]
+    },
+
+    "certifications": {
+      "azure": false
+    },
+
+    "skills": {
+      "C#": 3,
+      ".NET": 3,
+      ".NET Framework": 3,
+      ".NET Core": 3,
+      ".NET 8": 3,
+      "ASP.NET Core": 3,
+      "ASP.NET": 3,
+      "Web API": 3,
+      "REST API": 3,
+      "REST APIs": 3,
+      "REST API Design": 3,
+      "Angular": 3,
+      "Angular 19": 3,
+      "TypeScript": 3,
+      "JavaScript": 3,
+      "HTML": 3,
+      "HTML5": 3,
+      "CSS": 3,
+      "CSS3": 3,
+      "Bootstrap": 3,
+      "Tailwind CSS": 3,
+      "RxJS": 3,
+      "NgRx": 3,
+      "SQL": 3,
+      "SQL Server": 3,
+      "PostgreSQL": 3,
+      "MySQL": 3,
+      "Oracle": 3,
+      "MongoDB": 3,
+      "Microservices": 3,
+      "Entity Framework": 3,
+      "EF Core": 3,
+      "LINQ": 3,
+      "Node.js": 3,
+      "Express.js": 3,
+      "Kafka": 3,
+      "Apache Kafka": 3,
+      "OAuth2": 3,
+      "Auth0": 3,
+      "JWT": 3,
+      "Git": 3,
+      "GitHub": 3,
+      "CI/CD": 3,
+      "Testing": 3,
+      "xUnit": 3,
+      "Jasmine": 3,
+      "Postman": 3,
+      "Bruno": 3,
+
+      "Go": 0,
+      "React": 0,
+      "React.js": 0,
+      "Laravel": 0,
+      "WordPress": 0,
+      "Azure": 0,
+      "AWS": 0,
+      "GCP": 0,
+      "Docker": 0,
+      "Kubernetes": 0,
+      "Machine Learning": 0,
+      "MLOps": 0
+    },
+
+    "domain": {
+      "healthcare": 3,
+      "healthcareInteroperability": 3,
+      "FHIR": 3,
+      "IHE XDS": 3,
+      "electronicPatientRecord": 3
+    },
+
+    "education": {
+      "highestQualification": "MCA",
+      "degree": "Master of Computer Applications",
+      "institution": "Example University",
+      "graduationYear": 2023,
+      "additionalQualification": "Diploma in Advanced Computing (DAC)",
+      "additionalQualificationYear": 2024
+    },
+
+    "compliance": {
+      "disability": "No",
+      "veteranStatus": "No",
+      "diversity": "Prefer not to say"
+    },
+
+    "consent": {
+      "privacyPolicy": "auto",
+      "terms": "auto"
+    }
+  }
+}

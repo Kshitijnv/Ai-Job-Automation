@@ -1,0 +1,102 @@
+{
+  "version": "1.0",
+
+  "candidate": {
+  "name": "Kshitij Varshney",
+  "headline": ".NET Full Stack Developer",
+
+  "contact": {
+    "location": "Pune, Maharashtra, India",
+    "email": "kshitijvarshneynv@gmail.com",
+    "phone": "+91 7017187656",
+    "linkedin": "https://www.linkedin.com/in/kshitij-varshney/",
+    "github": "https://github.com/Kshitijnv",
+    "cvLanguage": "English",
+    "workAuthorization": "India"
+  },
+
+  "experience": {
+    "actualYears": 2.6,
+    "cvPositioning": "3+ years"
+  },
+
+  "notice": {
+    "days": 90,
+    "buyout": true,
+    "availableFrom": "2026-10-21"
+  }
+},
+
+  "locations": {
+    "priority": [
+      "Delhi",
+      "Noida",
+      "Gurugram",
+      "Pune"
+    ],
+    "relocation": true
+  },
+
+  "roles": {
+    "priority": [
+      ".NET Full Stack Developer",
+      "Full Stack Developer",
+      ".NET Developer",
+      ".NET Core Developer",
+      "Software Engineer (.NET)",
+      "C# Developer",
+      "Backend Developer (.NET)"
+    ]
+  },
+
+  "salary": {
+    "currentCTC": 8,
+    "expectedMin": 13,
+    "expectedMax": 15
+  },
+
+  "skills": {
+    "primary": [
+      "C#",
+      ".NET",
+      "ASP.NET Core",
+      "Angular",
+      "REST API",
+      "SQL",
+      "Microservices"
+    ],
+
+    "secondary": [
+      "Go",
+      "Kafka",
+      "FHIR",
+      "IHE XDS"
+    ],
+
+    "academicOnly": [
+      "React",
+      "Java",
+      "Auth0",
+      "Razorpay"
+    ],
+
+    "noProfessionalExperience": [
+      "Docker",
+      "Kubernetes",
+      "Azure",
+      "AWS",
+      "GCP"
+    ]
+  },
+
+  "projects": {
+    "professional": [
+      "ePA",
+      "FHIR Patient Portal",
+      "Large Document Handling"
+    ],
+    "academic": [
+      "Mr Buddy"
+    ]
+  }
+}

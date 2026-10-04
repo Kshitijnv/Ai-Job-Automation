@@ -1,0 +1,4 @@
+scripts/lib/common.js
+
+Common AgentOutput schema
+

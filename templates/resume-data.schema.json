@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "required": [
+    "name",
+    "headline",
+    "summary",
+    "experience",
+    "skills",
+    "education",
+    "projects"
+  ]
+}

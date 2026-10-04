@@ -1,0 +1,43 @@
+{
+  "version": "1.1",
+
+  "weights": {
+    "title": {
+      "Full Stack": 25,
+      ".NET": 25,
+      "C#": 20,
+      "Angular": 15,
+      "ASP.NET": 15,
+      "REST API": 10,
+      "Microservices": 10,
+      "SQL": 10,
+      "Backend": 10,
+      "Software Engineer": 5
+    },
+
+    "location": {
+      "Delhi": 15,
+      "Noida": 15,
+      "Gurugram": 15,
+      "Pune": 8
+    },
+
+    "seniorityPenalty": {
+      "Senior": -5,
+      "Lead": -15,
+      "Architect": -30,
+      "Manager": -25
+    }
+  },
+
+  "thresholds": {
+    "apply": 80,
+    "review": 65,
+    "maybe": 45
+  },
+
+  "limits": {
+    "minScore": 0,
+    "maxScore": 100
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "browser": "edge",
+  "profilePath": "output/edge-automation-profile",
+  "profile": "Kshitij",
+  "headless": false,
+  "navigationTimeoutMs": 45000,
+  "pageLoadWaitMs": 1500
+}

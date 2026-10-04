@@ -1,0 +1,106 @@
+\documentclass[10pt,a4paper]{article}
+
+% ==========================================
+% Packages
+% ==========================================
+
+\usepackage[a4paper,margin=0.6in]{geometry}
+\usepackage{fontspec}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+\usepackage{parskip}
+
+% ==========================================
+% Font
+% ==========================================
+
+\setmainfont{Arial}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+
+% ==========================================
+% Section formatting
+% ==========================================
+
+\titleformat{\section}
+{\large\bfseries}
+{}
+{0pt}
+{}
+
+\titlespacing{\section}{0pt}{8pt}{3pt}
+
+% ==========================================
+% Bullet formatting
+% ==========================================
+
+\setlist[itemize]{
+leftmargin=12pt,
+itemsep=2pt,
+topsep=2pt
+}
+
+\begin{document}
+
+% ==========================================
+% Header
+% ==========================================
+
+\begin{center}
+{\fontsize{18}{20}\selectfont\textbf{@@NAME@@}}
+
+\vspace{2pt}
+
+@@HEADLINE@@
+
+\vspace{3pt}
+
+@@LOCATION@@ \quad
+@@EMAIL@@ \quad
+@@PHONE@@
+\end{center}
+
+% ==========================================
+% Summary
+% ==========================================
+
+\section*{Summary}
+
+@@SUMMARY@@
+
+% ==========================================
+% Experience
+% ==========================================
+
+\section*{Experience}
+
+@@EXPERIENCE@@
+
+% ==========================================
+% Technical Skills
+% ==========================================
+
+\section*{Technical Skills}
+
+@@SKILLS@@
+
+% ==========================================
+% Education
+% ==========================================
+
+\section*{Education}
+
+@@EDUCATION@@
+
+% ==========================================
+% Projects
+% ==========================================
+
+\section*{Projects}
+
+@@PROJECTS@@
+
+\end{document}

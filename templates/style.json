@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "page": {
+    "size": "A4",
+    "margin": "0.6in"
+  },
+  "font": {
+    "family": "TeX Gyre Heros",
+    "size": 10
+  },
+  "header": {
+    "nameSize": 18,
+    "roleSize": 11
+  },
+  "spacing": {
+    "sectionGap": "8pt",
+    "bulletGap": "3pt"
+  }
+}

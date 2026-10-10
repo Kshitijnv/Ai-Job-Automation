@@ -164,14 +164,12 @@ function mapClassification(classification, applicationConfig, confidenceThreshol
 
   const mapped = configuredAnswer(applicationConfig, classification.intent, classification.skill);
   if (!mapped) return null;
-  const isRor = mapped.skill && questionMapper.normalizedSkillName(mapped.skill) === "ruby on rails";
   return {
     status: "RESOLVED",
     intent: classification.intent,
     answerSource: mapped.answerSource,
     answer: mapped.answer,
     ...(mapped.displayValue ? { displayValue: mapped.displayValue } : {}),
-    ...(isRor ? { safeTextualAnswer: "NA" } : {}),
     questionType: classification.intent === "skill_experience_years" || classification.intent === "total_experience_years"
       ? "numeric_experience"
       : classification.intent === "serving_notice_period" ? "boolean" : "notice_period",

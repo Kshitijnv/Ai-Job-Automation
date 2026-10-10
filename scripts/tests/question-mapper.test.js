@@ -29,23 +29,64 @@ function resolveWithConfig(question, applicationConfig) {
 }
 
 expectResolved("How many years of experience do you have?", 3);
+expectResolved("What is your total work experience?", 3);
+expectResolved("How many years of professional experience do you have?", 3);
 expectResolved("How many years have you worked with Angular?", 3);
+expectResolved("How many years of experience do you have with C#?", 3);
+expectResolved("How many years of experience do you have with .NET?", 3);
 expectResolved("How many years of experience do you have with .NET Core?", 3);
+expectResolved("How many years of experience do you have with React?", 0);
 expectResolved("How many years of experience do you have with Laravel?", 0);
 expectResolved("How many years of experience do you have with Kubernetes?", 0);
+expectResolved("How many years of experience do you have with Web Service?", 0);
+expectResolved("How many years of experience do you have with Django?", 0);
+expectResolved("How many years of experience do you have with Ruby on Rails?", 0);
+expectResolved("How many years of experience do you have in C#/.NET development?", 3);
+expectResolved("How many years of experience do you have in GenAI / LLM / RAG?", 3);
+expectResolved("How many years of experience do you have in Python Development?", 0);
+expectResolved("How many years of experience do you have in FastAPI?", 0);
+expectResolved("How much experience do you have in Redis?", 0);
+
 for (const skill of ["Go", "React", "React.js", "Laravel", "WordPress", "Azure", "AWS", "GCP", "Docker", "Kubernetes", "Machine Learning", "MLOps"]) {
   expectResolved(`How many years of experience do you have with ${skill}?`, 0);
 }
+
+expectResolved("How many years of experience do you have in AWS/Azure/GCP?", 0);
 expectResolved("Do you have experience with .NET and C#?", true);
+expectResolved("Do you have experience with React and .NET?", false);
+expectResolved("Do you have experience with React or .NET?", true);
+expectResolved("Do you have experience with React or Laravel?", false);
 expectResolved("Do you have experience with React?", false);
+expectResolved("Have you worked with Laravel?", false);
+expectResolved("Do you have production experience with Kubernetes?", false);
 expectResolved("What is your notice period in days?", 90);
 expectResolved("What is your notice period in months?", 3);
 expectResolved("What is your current location?", "Pune");
+expectResolved("Where are you currently located?", "Pune");
+expectResolved("Are you currently based in Pune?", true);
+expectResolved("Are you currently based in Mumbai?", false);
 expectResolved("Are you willing to relocate?", true);
-expectNeedsUserInput("How many years of experience do you have in AWS/Azure/GCP?");
+expectResolved("Are you willing to relocate to Noida?", true);
+expectResolved("Are you willing to relocate to Indore?", false);
+expectResolved("Are you comfortable with night shifts?", true);
+expectResolved("Are you okay with night shift?", true);
+expectResolved("Do you have any Azure certifications?", false);
+expectResolved("Are you Azure certified?", false);
+expectResolved("Can you join immediately?", false);
+
+const frontendSkillsResult = questionMapper.resolveSemanticAnswer("In front end you have experience in which skills?", { applicationConfig: appConfig });
+assert.strictEqual(frontendSkillsResult.status, "RESOLVED");
+assert.ok(Array.isArray(frontendSkillsResult.answer));
+assert.ok(frontendSkillsResult.answer.includes("Angular"));
+assert.ok(frontendSkillsResult.answer.includes("TypeScript"));
+
 expectNeedsUserInput("How many years of experience in CI/CD and Kubernetes?");
 expectNeedsUserInput("How many years of experience in open source technologies (mention tech stack)");
 expectNeedsUserInput("Describe your experience with Angular.");
+expectNeedsUserInput("Preferred Employment type");
+expectNeedsUserInput("Are you interested in Contract to Hire (C2H) basis?");
+expectNeedsUserInput("Are you comfortable working on a 6-month contractual assignment?");
+expectNeedsUserInput("What is your passport number?");
 expectResolved("How many years of experience do you have in Machine Learning?", 0);
 
 for (const question of [

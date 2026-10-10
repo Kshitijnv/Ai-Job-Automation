@@ -19,7 +19,6 @@ These features are considered complete and must not be broken:
 * JD Agent
 * Resume Agent
 * Dashboard Agent
-* n8n Integration
 * `jobs-today.bat`
 
 Treat these as production-ready MVP components.

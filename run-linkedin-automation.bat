@@ -8,11 +8,7 @@ title LinkedIn Job Automation Pipeline
 echo ==================================================
 echo LinkedIn Job Automation Pipeline
 echo ==================================================
-echo.
-echo This runs the same sequential pipeline that was
-echo previously orchestrated through n8n:
-echo.
-echo Search -> Fit -> JD -> Resume -> Apply -> Dashboard
+echo Pipeline: Search -> Fit -> JD -> Resume -> Apply -> Dashboard
 echo.
 echo Each step must finish successfully before the next
 echo step starts.

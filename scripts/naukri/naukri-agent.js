@@ -523,8 +523,11 @@ async function resolveNaukriAnswerDetails(question, applicationConfig, profile, 
       if (!Number.isFinite(noticePeriodDays) || !lastWorkingDay) return { semantic, answer: undefined };
       return { semantic, answer: `${noticePeriodDays} days, LWD: ${lastWorkingDay}` };
     }
-    if (semantic.safeTextualAnswer) {
-      return { semantic, answer: semantic.safeTextualAnswer };
+    if (Array.isArray(semantic.answer)) {
+      return { semantic, answer: semantic.answer };
+    }
+    if (typeof semantic.answer === "number") {
+      return { semantic, answer: semantic.answer };
     }
     if (semantic.displayValue !== undefined && semantic.displayValue !== null && semantic.displayValue !== "") {
       return { semantic, answer: semantic.displayValue };
@@ -760,9 +763,7 @@ async function selectMultipleCheckboxOptions(group, targetLabels = []) {
 }
 
 function isRorOrSafeNaSkill(semantic) {
-  if (semantic?.safeTextualAnswer === "NA") return true;
-  const skill = semantic?.entities?.skill || semantic?.skill;
-  return Boolean(skill && questionMapper.normalizedSkillName(skill) === "ruby on rails");
+  return semantic?.safeTextualAnswer === "NA";
 }
 
 function decideNaukriAnswerControl({ intent, answer, options = [], hasTextInput = false, semantic = null } = {}) {

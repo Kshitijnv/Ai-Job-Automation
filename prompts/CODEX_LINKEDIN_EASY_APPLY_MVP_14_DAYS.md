@@ -333,7 +333,6 @@ This is an MVP.
 
 Do NOT add:
 
-- n8n
 - database
 - CRM
 - AI job scoring

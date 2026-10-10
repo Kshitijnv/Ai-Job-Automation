@@ -398,25 +398,50 @@ async function inspectQuestionRadioGroups(dialog, secrets = []) {
       const labelledBy = (group.getAttribute("aria-labelledby") || "").split(/\s+/)
         .map(id => document.getElementById(id)?.innerText || "").join(" ").trim();
       const legend = group.querySelector("legend")?.innerText || "";
-      const radios = [...group.querySelectorAll("[role='radio'],input[type='radio']")].filter(visible).map(radio => ({
-        tag: radio.tagName.toLowerCase(),
-        role: radio.getAttribute("role") || "radio (native)",
-        accessibleLabel: redact(radio.getAttribute("aria-label")
-          || (radio.getAttribute("aria-labelledby") || "").split(/\s+/).map(id => document.getElementById(id)?.innerText || "").join(" ")
-          || [...(radio.labels || [])].map(label => label.innerText).join(" ") || radio.innerText || ""),
-        ariaLabelledBy: radio.getAttribute("aria-labelledby") || "",
-        text: redact((radio.innerText || "").replace(/\s+/g, " ").trim()),
-        html: radio.outerHTML.slice(0, 1800),
-        value: redact(radio.value || radio.getAttribute("data-value") || ""),
-        selected: radio instanceof HTMLInputElement ? radio.checked : radio.getAttribute("aria-checked") === "true",
-        required: Boolean(radio.required || radio.getAttribute("aria-required") === "true")
-      }));
+      const ariaLabel = group.getAttribute("aria-label") || "";
+      const heading = group.querySelector("h1, h2, h3, h4, h5, h6, [role='heading'], [data-test-form-builder-radio-button-form-component__title], [class*='title'], [class*='label']")?.innerText || "";
+      let question = (legend || ariaLabel || labelledBy || heading || "").replace(/\s+/g, " ").trim();
+      if (!question && group.previousElementSibling?.innerText) {
+        question = group.previousElementSibling.innerText.replace(/\s+/g, " ").trim();
+      }
+
+      const roleRadios = Array.from(group.querySelectorAll("[role='radio']")).filter(visible);
+      const inputRadios = Array.from(group.querySelectorAll("input[type='radio']")).filter(visible);
+      const isRoleRadio = roleRadios.length > 0;
+      const radioElements = isRoleRadio ? roleRadios : inputRadios;
+
+      const radios = radioElements.map(radio => {
+        let text = "";
+        let accessibleLabel = "";
+        if (isRoleRadio) {
+          const clone = radio.cloneNode(true);
+          clone.querySelectorAll("input, label:empty").forEach(el => el.remove());
+          text = (clone.innerText || clone.textContent || "").replace(/\s+/g, " ").trim();
+          accessibleLabel = redact(radio.getAttribute("aria-label") || text);
+        } else {
+          text = redact((radio.innerText || "").replace(/\s+/g, " ").trim());
+          accessibleLabel = redact(radio.getAttribute("aria-label")
+            || (radio.getAttribute("aria-labelledby") || "").split(/\s+/).map(id => document.getElementById(id)?.innerText || "").join(" ")
+            || [...(radio.labels || [])].map(label => label.innerText).join(" ") || radio.innerText || "");
+        }
+        return {
+          tag: radio.tagName.toLowerCase(),
+          role: radio.getAttribute("role") || "radio (native)",
+          accessibleLabel,
+          ariaLabelledBy: radio.getAttribute("aria-labelledby") || "",
+          text: redact(text),
+          html: radio.outerHTML.slice(0, 1800),
+          value: redact(radio.value || radio.getAttribute("data-value") || text),
+          selected: radio instanceof HTMLInputElement ? radio.checked : radio.getAttribute("aria-checked") === "true",
+          required: Boolean(radio.required || radio.getAttribute("aria-required") === "true")
+        };
+      });
       return {
         tag: group.tagName.toLowerCase(),
         role: group.getAttribute("role") || "",
         dataTestId: group.getAttribute("data-testid") || "",
         ariaLabel: redact(group.getAttribute("aria-label") || ""),
-        question: redact(group.getAttribute("aria-label") || labelledBy || legend),
+        question: redact(question),
         html: group.outerHTML.slice(0, 5000),
         required: group.getAttribute("aria-required") === "true" || radios.some(radio => radio.required),
         options: radios
@@ -583,13 +608,13 @@ async function automate(page, job, candidate, profile, applicationConfig, option
         result.resumeStatus = "NO_RESUME_RADIO_CHOICE";
       }
     }
-    result.fieldsDetected.push(...await formMapper.collectFieldMetadata(page));
-    result.knownFieldsFilled.push(...await formMapper.fillKnownFields(page, profile, null, { skipExperience: true }));
-    result.configuredFieldsFilled.push(...await formMapper.fillConfiguredFields(page, applicationConfig));
+    result.fieldsDetected.push(...await formMapper.collectFieldMetadata(page, dialog));
+    result.knownFieldsFilled.push(...await formMapper.fillKnownFields(page, profile, dialog, { skipExperience: true }));
+    result.configuredFieldsFilled.push(...await formMapper.fillConfiguredFields(page, applicationConfig, dialog));
     result.semanticQuestionsResolved.push(...await formMapper.fillSemanticQuestions(page, {
       applicationConfig, profile, job, resumeData: profile.resume || profile.candidate?.resume || {},
       experienceYearsRule: true
-    }));
+    }, dialog));
 
     const resumeRequired = await dialog.locator("input[type='file'][required], input[type='file'][aria-required='true']").count().catch(() => 0);
     const resumeNeeded = resumeRequired > 0 && await uploader.resumeRequested(page);

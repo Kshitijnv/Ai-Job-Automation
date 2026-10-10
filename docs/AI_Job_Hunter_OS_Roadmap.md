@@ -12,7 +12,6 @@ This roadmap is designed as a **living checklist**. Most Markdown editors (VS Co
 |--------|--------|
 | Current Phase | **Phase 1 – Foundation** |
 | Search Automation | ✅ Working |
-| n8n Integration | ✅ Working |
 | LinkedIn CLI | ✅ Integrated |
 | AI Dependency | ❌ Not Required |
 
@@ -21,8 +20,6 @@ This roadmap is designed as a **living checklist**. Most Markdown editors (VS Co
 # Phase 1 — Foundation
 
 - [x] Create `jobs-today.bat`
-- [x] Install and configure n8n
-- [x] Enable Execute Command node
 - [x] Connect LinkedIn CLI
 - [x] Build `search-agent.js`
 - [x] Deduplicate jobs by Job ID

@@ -124,31 +124,123 @@ function buildPrompt(template, {
   return rendered;
 }
 
+const LOCATION_EQUIVALENT_SETS = [
+  new Set(["delhi ncr", "delhi/ncr", "delhincr", "delhi", "ncr", "new delhi", "national capital region"]),
+  new Set(["gurugram", "gurgaon"]),
+  new Set(["bengaluru", "bangalore"]),
+  new Set(["mumbai", "bombay", "navi mumbai"]),
+  new Set(["kolkata", "calcutta"]),
+  new Set(["chennai", "madras"]),
+  new Set(["hyderabad", "secunderabad"]),
+  new Set(["remote", "work from home", "wfh", "anywhere", "virtual"])
+];
+
+function areLocationsMatching(candidate, option) {
+  const normC = normalizeOptionText(candidate);
+  const normO = normalizeOptionText(option);
+  if (!normC || !normO) return false;
+  if (normC === normO) return true;
+
+  const partsC = String(candidate).toLowerCase().split(/[\/,\s]+/).map(p => normalizeOptionText(p)).filter(Boolean);
+  const partsO = String(option).toLowerCase().split(/[\/,\s]+/).map(p => normalizeOptionText(p)).filter(Boolean);
+
+  for (const set of LOCATION_EQUIVALENT_SETS) {
+    const cMatch = set.has(normC) || partsC.some(p => set.has(p));
+    const oMatch = set.has(normO) || partsO.some(p => set.has(p));
+    if (cMatch && oMatch) return true;
+  }
+  return false;
+}
+
+function parseNumericRangeOption(label) {
+  const text = String(label || "").replace(/\s+/g, " ").trim().toLowerCase();
+  if (!text) return null;
+  if (/\bfresher\b/.test(text)) return { min: 0, max: 0, minInclusive: true, maxInclusive: true };
+
+  const lessThan = text.match(/(?:less than|under|<)\s*(\d+(?:\.\d+)?)/);
+  if (lessThan) return { min: 0, max: Number(lessThan[1]), minInclusive: true, maxInclusive: false };
+
+  const moreThan = text.match(/(?:more than|over|>)\s*(\d+(?:\.\d+)?)/);
+  if (moreThan) return { min: Number(moreThan[1]), max: Number.POSITIVE_INFINITY, minInclusive: false, maxInclusive: false };
+
+  const plus = text.match(/(?:^|\s)(\d+(?:\.\d+)?)\s*\+/);
+  if (plus) return { min: Number(plus[1]), max: Number.POSITIVE_INFINITY, minInclusive: true, maxInclusive: false };
+
+  const range = text.match(/(?:^|\s)(\d+(?:\.\d+)?)\s*(?:to|[-–—])\s*(\d+(?:\.\d+)?)(?:\s|$)/);
+  if (range) {
+    const min = Number(range[1]);
+    const max = Number(range[2]);
+    if (max < min) return null;
+    return { min, max, minInclusive: true, maxInclusive: true };
+  }
+
+  return null;
+}
+
 function findMatchingOption(candidate, availableOptions = []) {
   if (candidate === undefined || candidate === null) return null;
   const normList = normalizeOptionsList(availableOptions);
   if (!normList.length) return null;
 
   const targetNorm = normalizeOptionText(candidate);
-  if (!targetNorm) return null;
+  if (!targetNorm && typeof candidate !== "number") return null;
 
   // Exact normalized match
   const exact = normList.find(opt => opt.normalized === targetNorm);
   if (exact) return exact;
 
+  // Boolean true / false conversion
+  if (candidate === true || targetNorm === "true" || targetNorm === "yes") {
+    const yesMatch = normList.find(opt => opt.normalized === "yes" || opt.normalized === "true" || opt.normalized.startsWith("yes"));
+    if (yesMatch) return yesMatch;
+  }
+  if (candidate === false || targetNorm === "false" || targetNorm === "no") {
+    const noMatch = normList.find(opt => opt.normalized === "no" || opt.normalized === "false" || opt.normalized.startsWith("no"));
+    if (noMatch) return noMatch;
+  }
+
   // Substring or zero-experience equivalents
-  if (targetNorm === "no" || targetNorm === "none" || targetNorm === "no experience" || targetNorm === "0" || targetNorm === "na" || targetNorm === "not applicable") {
+  if (candidate === 0 || targetNorm === "no" || targetNorm === "none" || targetNorm === "no experience" || targetNorm === "0" || targetNorm === "false" || targetNorm === "na" || targetNorm === "not applicable" || targetNorm === "0 years") {
     const zeroMatch = normList.find(opt =>
+      opt.normalized === "0" ||
+      opt.normalized === "no" ||
+      opt.normalized === "false" ||
+      opt.normalized === "none" ||
+      opt.normalized === "fresher" ||
       opt.normalized.includes("no experience") ||
       opt.normalized.includes("0 years") ||
-      opt.normalized === "0" ||
-      opt.normalized === "na" ||
-      opt.normalized === "not applicable" ||
+      opt.normalized.includes("0 to") ||
+      opt.normalized.includes("0 -") ||
+      opt.normalized.includes("0-") ||
       opt.normalized.startsWith("<") ||
-      opt.normalized.startsWith("less than")
+      opt.normalized.startsWith("less than") ||
+      opt.normalized === "na" ||
+      opt.normalized === "not applicable"
     );
     if (zeroMatch) return zeroMatch;
   }
+
+  // Numeric range matching (e.g. candidate 3 -> "1-3 years" or "3 to 5 years" or "1 to 5 yrs")
+  const numCandidate = typeof candidate === "number" ? candidate : Number(targetNorm);
+  if (Number.isFinite(numCandidate)) {
+    const rangeMatches = normList.map(opt => {
+      const range = parseNumericRangeOption(opt.label);
+      if (!range) return null;
+      const aboveMin = range.minInclusive ? numCandidate >= range.min : numCandidate > range.min;
+      const belowMax = range.maxInclusive ? numCandidate <= range.max : numCandidate < range.max;
+      return aboveMin && belowMax ? opt : null;
+    }).filter(Boolean);
+
+    if (rangeMatches.length === 1) return rangeMatches[0];
+    if (rangeMatches.length > 1) {
+      // Pick the most specific range or first match
+      return rangeMatches[0];
+    }
+  }
+
+  // Location equivalence matching
+  const locMatch = normList.find(opt => areLocationsMatching(candidate, opt.label));
+  if (locMatch) return locMatch;
 
   // Prefix or contains match
   const partial = normList.find(opt => opt.normalized.includes(targetNorm) || targetNorm.includes(opt.normalized));
@@ -157,14 +249,28 @@ function findMatchingOption(candidate, availableOptions = []) {
   return null;
 }
 
-function validateAnswerAgainstControl(rawAnswer, controlType = "text", availableOptions = []) {
+function validateAnswerAgainstControl(rawAnswer, controlType = "text", availableOptions = [], { isPreferenceList = false } = {}) {
   const normType = String(controlType || "text").toLowerCase().trim();
   const optionsList = normalizeOptionsList(availableOptions);
 
   // Single-select / Radio / Dropdown
   if (normType === "radio" || normType === "radio_group" || normType === "select" || normType === "dropdown" || normType === "button_options" || normType === "custom_combobox") {
     if (!optionsList.length) {
-      return { valid: true, answer: rawAnswer };
+      const answerVal = Array.isArray(rawAnswer) ? rawAnswer[0] : rawAnswer;
+      return { valid: true, answer: answerVal };
+    }
+    // If rawAnswer is an array (e.g. priority list of locations: ["Remote", "Pune", "Gurugram", "Noida", "Delhi/NCR"])
+    if (Array.isArray(rawAnswer)) {
+      for (const candidate of rawAnswer) {
+        const matched = findMatchingOption(candidate, optionsList);
+        if (matched) {
+          return { valid: true, answer: matched.label, index: matched.index, matchedOption: matched };
+        }
+      }
+      return {
+        valid: false,
+        reason: `None of the configured preferences [${rawAnswer.join(", ")}] match available options: [${optionsList.map(o => o.label).join(", ")}]`
+      };
     }
     const matched = findMatchingOption(rawAnswer, optionsList);
     if (matched) {
@@ -191,20 +297,35 @@ function validateAnswerAgainstControl(rawAnswer, controlType = "text", available
 
     const matchedLabels = [];
     const matchedIndices = [];
+    const unmatchedItems = [];
 
     for (const item of items) {
       const matched = findMatchingOption(item, optionsList);
-      if (!matched) {
-        return {
-          valid: false,
-          reason: `Checkbox option "${item}" does not exist in available options: [${optionsList.map(o => o.label).join(", ")}]`
-        };
+      if (matched) {
+        if (!matchedLabels.includes(matched.label)) {
+          matchedLabels.push(matched.label);
+          matchedIndices.push(matched.index);
+        }
+      } else {
+        unmatchedItems.push(item);
       }
-      matchedLabels.push(matched.label);
-      matchedIndices.push(matched.index);
     }
 
-    return { valid: true, answer: matchedLabels, indices: matchedIndices };
+    if (!isPreferenceList && unmatchedItems.length > 0) {
+      return {
+        valid: false,
+        reason: `Answer contains invalid option(s) not present in form: [${unmatchedItems.join(", ")}]. Available options: [${optionsList.map(o => o.label).join(", ")}]`
+      };
+    }
+
+    if (matchedLabels.length > 0) {
+      return { valid: true, answer: matchedLabels, indices: matchedIndices };
+    }
+
+    return {
+      valid: false,
+      reason: `None of the options in "${Array.isArray(rawAnswer) ? rawAnswer.join(", ") : rawAnswer}" match available options: [${optionsList.map(o => o.label).join(", ")}]`
+    };
   }
 
   // Number / Numeric
@@ -249,8 +370,11 @@ function resolveDeterministicAnswer(question, applicationConfig = {}, profile = 
         };
       }
     }
-    if (semantic.safeTextualAnswer) {
-      return { resolved: true, answer: semantic.safeTextualAnswer, semantic, source: "deterministic" };
+    if (Array.isArray(semantic.answer)) {
+      return { resolved: true, answer: semantic.answer, semantic, source: "deterministic" };
+    }
+    if (typeof semantic.answer === "number") {
+      return { resolved: true, answer: semantic.answer, semantic, source: "deterministic" };
     }
     if (semantic.displayValue !== undefined && semantic.displayValue !== null && semantic.displayValue !== "") {
       return { resolved: true, answer: semantic.displayValue, semantic, source: "deterministic" };
@@ -343,7 +467,7 @@ async function resolveQuestion({
   if (!skipDeterministic) {
     const deterministic = resolveDeterministicAnswer(question, activeAppConfig, activeProfile);
     if (deterministic.resolved && deterministic.answer !== undefined && deterministic.answer !== null && deterministic.answer !== "") {
-      const validation = validateAnswerAgainstControl(deterministic.answer, controlType, options);
+      const validation = validateAnswerAgainstControl(deterministic.answer, controlType, options, { isPreferenceList: Array.isArray(deterministic.answer) });
       if (validation.valid) {
         return {
           status: "RESOLVED",

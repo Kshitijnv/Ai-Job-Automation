@@ -152,7 +152,6 @@ If a complete LinkedIn Easy Apply flow already exists, test it using existing sa
 ## Do not overbuild
 
 Do not add:
-- n8n
 - database
 - CRM
 - AI job scoring

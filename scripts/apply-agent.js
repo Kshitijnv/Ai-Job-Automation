@@ -135,13 +135,13 @@ async function processJob(page, job, candidate, profile, applicationConfig, conf
   const result = await inspectLinkedInJob(page, job, config);
   result.portalUrl = "";
   if (result.status === "Ready") {
-    const click = await clickEasyApplyEntry(page);
+    const click = await clickEasyApplyEntry(page, job);
     result.status = click.clicked ? "EasyApplyEntryReached" : "Unknown";
     result.classification = click.clicked ? "EASY_APPLY" : "UNKNOWN";
     result.easyApplyControl = click;
     result.reason = click.clicked
       ? "Opened the LinkedIn Easy Apply entry point."
-      : "Easy Apply was detected but its control could not be safely clicked.";
+      : (click.diagnostic || click.reason || "Easy Apply was detected but its control could not be safely clicked.");
     if (!/^https?:\/\/(www\.|[a-z]{2}\.)?linkedin\.com\//i.test(page.url())) {
       result.status = "Unknown";
       result.classification = "UNKNOWN";

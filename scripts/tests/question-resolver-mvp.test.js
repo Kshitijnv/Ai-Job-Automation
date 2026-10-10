@@ -101,7 +101,7 @@ async function runTests() {
     console.log("✓ Test 1 Passed: Deterministic question resolved without calling Qwen.");
   }
 
-  // Test 2: Unknown experience subject ("Opcenter Developer") with "No experience" radio option -> Qwen selects "No experience"
+  // Test 2: Unconfigured skill experience ("Opcenter Developer") with radio options -> deterministically selects "No experience" (Qwen NOT called)
   {
     qwenCallCount = 0;
     const res = await questionResolver.resolveQuestion({
@@ -116,14 +116,14 @@ async function runTests() {
       resume,
       promptTemplate,
       llmConfig,
-      fetchImpl: mockFetch({ answer: "No experience", confidence: 0.98 })
+      fetchImpl: mockFetch({ answer: "1-2 years", confidence: 0.98 })
     });
 
     assert.strictEqual(res.status, "RESOLVED");
-    assert.strictEqual(res.source, "llm");
+    assert.strictEqual(res.source, "deterministic");
     assert.strictEqual(res.answer, "No experience");
-    assert.strictEqual(qwenCallCount, 1, "Qwen must be called exactly once");
-    console.log("✓ Test 2 Passed: Unknown experience subject with 'No experience' radio option handled.");
+    assert.strictEqual(qwenCallCount, 0, "Qwen must NOT be called for unconfigured skill question");
+    console.log("✓ Test 2 Passed: Unconfigured skill experience deterministically selects 'No experience'.");
   }
 
   // Test 3: Supported skill (Angular) -> deterministic answer used

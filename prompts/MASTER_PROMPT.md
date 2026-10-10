@@ -24,7 +24,6 @@ Before starting any task:
 * JD Agent
 * Resume Agent
 * Dashboard Agent
-* n8n Integration
 * One-click jobs-today.bat
 
 These features are considered the stable baseline.

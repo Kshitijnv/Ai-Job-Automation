@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Application Profile Configuration | AI Job Automation</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">Application Profile</h1>
+          <p class="brand-subtitle">Configure canonical personal & job application facts for Naukri & LinkedIn Easy Apply</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="badge badge-source">config/application.json</span>
+        <button type="button" class="btn btn-primary" id="btn-save">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+          Save Configuration
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+    <form id="config-form" novalidate>
+
+      <!-- 1. Basic Details -->
+      <section class="card" id="section-basic-details">
+        <div class="card-header">
+          <div class="card-icon icon-employment">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">1. Basic Details</h2>
+            <p class="card-desc">Personal profile details, demographic preferences, and diversity information</p>
+          </div>
+        </div>
+        <div class="card-body grid-3">
+          <div class="form-group">
+            <label for="basic-fullName" class="form-label">Full Name</label>
+            <input type="text" id="basic-fullName" name="basic.fullName" class="form-control" value="Kshitij Varshney">
+            <span class="field-hint">Primary candidate name</span>
+          </div>
+          <div class="form-group">
+            <label for="basic-dateOfBirth" class="form-label">Date of Birth (Optional)</label>
+            <input type="date" id="basic-dateOfBirth" name="basic.dateOfBirth" class="form-control">
+            <span class="field-hint">Used if application forms ask for birth date</span>
+          </div>
+          <div class="form-group">
+            <label for="basic-birthPlace" class="form-label">Birth Place / Hometown</label>
+            <input type="text" id="basic-birthPlace" name="basic.birthPlace" class="form-control" placeholder="e.g. Aligarh, UP">
+          </div>
+          <div class="form-group">
+            <label for="answers-compliance-diversity" class="form-label">Gender Identity</label>
+            <select id="answers-compliance-diversity" name="answers.compliance.diversity" class="form-control">
+              <option value="Male" selected>Male</option>
+              <option value="Female">Female</option>
+              <option value="Non-binary">Non-binary</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="answers-compliance-disability" class="form-label">Disability Status</label>
+            <select id="answers-compliance-disability" name="answers.compliance.disability" class="form-control">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="answers-compliance-veteranStatus" class="form-label">Veteran Status</label>
+            <select id="answers-compliance-veteranStatus" name="answers.compliance.veteranStatus" class="form-control">
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+              <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Experience & Domain -->
+      <section class="card" id="section-experience">
+        <div class="card-header">
+          <div class="card-icon icon-experience">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">2. Experience & Industry Domain</h2>
+            <p class="card-desc">Total professional experience and primary domain / industry sector</p>
+          </div>
+        </div>
+        <div class="card-body grid-3">
+          <div class="form-group">
+            <label for="experienceYears" class="form-label required">Profile Experience (Years)</label>
+            <input type="number" id="experienceYears" name="experienceYears" class="form-control validate-numeric validate-required" value="3" min="0" max="50" step="0.5" data-field-title="Profile Experience" required>
+            <span class="field-hint">Used for primary experience filters</span>
+            <span class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="answers-experience-totalYears" class="form-label required">Answers Total Experience (Years)</label>
+            <input type="number" id="answers-experience-totalYears" name="answers.experience.totalYears" class="form-control validate-numeric validate-required" value="3" min="0" max="50" step="0.5" data-field-title="Total Experience" required>
+            <span class="field-hint">Value for "Total years of experience"</span>
+            <span class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="answers-domain-primaryDomain" class="form-label required">Current Working Domain</label>
+            <select id="answers-domain-primaryDomain" name="answers.domain.primaryDomain" class="form-control">
+              <option value="Healthcare" selected>Healthcare</option>
+              <option value="Software / IT">Software / IT</option>
+              <option value="Banking / Finance">Banking / Finance</option>
+              <option value="Insurance">Insurance</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Telecom">Telecom</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Education">Education</option>
+              <option value="Government">Government</option>
+              <option value="Retail">Retail</option>
+              <option value="Logistics">Logistics</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="field-hint">Primary industry domain of current role</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. Contact & Location -->
+      <section class="card" id="section-contact">
+        <div class="card-header">
+          <div class="card-icon icon-location">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">3. Contact & Location</h2>
+            <p class="card-desc">Controlled country code, current city, primary location, and structured preferred locations</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid-3 mb-4">
+            <div class="form-group">
+              <label for="contact-phoneCountry" class="form-label required">Phone Country</label>
+              <select id="contact-phoneCountry" name="contact.phoneCountry" class="form-control" required>
+                <option value="India" selected>India (+91)</option>
+                <option value="United States">United States (+1)</option>
+                <option value="United Kingdom">United Kingdom (+44)</option>
+                <option value="Canada">Canada (+1)</option>
+                <option value="Australia">Australia (+61)</option>
+                <option value="Germany">Germany (+49)</option>
+                <option value="Singapore">Singapore (+65)</option>
+                <option value="United Arab Emirates">United Arab Emirates (+971)</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="field-hint">Select country and dial code</span>
+            </div>
+            <div class="form-group">
+              <label for="answers-contact-currentLocation" class="form-label required">Current City</label>
+              <select id="answers-contact-currentLocation" name="answers.contact.currentLocation" class="form-control" required>
+                <option value="Pune" selected>Pune</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Gurugram">Gurugram</option>
+                <option value="Noida">Noida</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Lucknow">Lucknow</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Indore">Indore</option>
+                <option value="Nagpur">Nagpur</option>
+                <option value="Kochi">Kochi</option>
+                <option value="Aligarh">Aligarh</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="field-hint">City of current residence</span>
+            </div>
+            <div class="form-group">
+              <label for="answers-contact-location" class="form-label required">Primary Location</label>
+              <select id="answers-contact-location" name="answers.contact.location" class="form-control" required>
+                <option value="Pune" selected>Pune</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Delhi/NCR">Delhi/NCR</option>
+                <option value="Gurugram">Gurugram</option>
+                <option value="Noida">Noida</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Lucknow">Lucknow</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Indore">Indore</option>
+                <option value="Nagpur">Nagpur</option>
+                <option value="Kochi">Kochi</option>
+                <option value="Other">Other</option>
+              </select>
+              <span class="field-hint">Base location for recruiter inquiries</span>
+            </div>
+          </div>
+
+          <!-- Structured Preferred Locations Selector -->
+          <div class="form-group">
+            <label class="form-label">Preferred Work Locations</label>
+            <div class="add-tag-row mb-3">
+              <select id="preferred-location-select" class="form-control form-control-sm" style="max-width: 320px;">
+                <option value="" disabled selected>Select location to add...</option>
+                <option value="Remote">Remote</option>
+                <option value="Pune">Pune</option>
+                <option value="Noida">Noida</option>
+                <option value="Gurugram">Gurugram</option>
+                <option value="Delhi/NCR">Delhi/NCR</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Chennai">Chennai</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Ahmedabad">Ahmedabad</option>
+                <option value="Jaipur">Jaipur</option>
+                <option value="Lucknow">Lucknow</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Indore">Indore</option>
+                <option value="Nagpur">Nagpur</option>
+                <option value="Kochi">Kochi</option>
+              </select>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-preferred-location">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add
+              </button>
+            </div>
+            <div class="tags-container" id="preferred-locations-list">
+              <!-- Rendered dynamically -->
+            </div>
+            <span class="field-hint">Target cities for job search and recruiter location matching</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. Notice Period & Availability -->
+      <section class="card" id="section-notice">
+        <div class="card-header">
+          <div class="card-icon icon-notice">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">4. Notice Period & Availability</h2>
+            <p class="card-desc">Notice duration in integer days/months, active notice status, and Last Working Day (LWD)</p>
+          </div>
+        </div>
+        <div class="card-body grid-2">
+          <div class="form-group">
+            <label for="answers-noticePeriod-days" class="form-label required">Notice Period (Days)</label>
+            <input type="number" id="answers-noticePeriod-days" name="answers.noticePeriod.days" class="form-control validate-integer validate-required" value="90" min="0" max="180" step="1" data-field-title="Notice period in days" required>
+            <span class="field-hint">Whole number: 0 to 180 (e.g. 0, 15, 30, 60, 90)</span>
+            <span class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="answers-noticePeriod-months" class="form-label required">Notice Period (Months)</label>
+            <input type="number" id="answers-noticePeriod-months" name="answers.noticePeriod.months" class="form-control validate-integer validate-required" value="3" min="0" max="12" step="1" data-field-title="Notice period in months" required>
+            <span class="field-hint">Whole number: 0 to 12 (e.g. 0, 1, 2, 3)</span>
+            <span class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Currently Serving Notice?</label>
+            <div class="toggle-control">
+              <input type="checkbox" id="answers-noticePeriod-servingNoticePeriod" name="answers.noticePeriod.servingNoticePeriod" class="toggle-checkbox" checked>
+              <label for="answers-noticePeriod-servingNoticePeriod" class="toggle-label"></label>
+              <span class="toggle-status-text" id="serving-notice-status-text">Yes, currently serving notice period</span>
+            </div>
+            <span class="field-hint">Toggling OFF disables Last Working Day input</span>
+          </div>
+          <div class="form-group" id="lwd-form-group">
+            <label for="answers-noticePeriod-lastWorkingDay" class="form-label">Last Working Day (LWD)</label>
+            <input type="text" id="answers-noticePeriod-lastWorkingDay" name="answers.noticePeriod.lastWorkingDay" class="form-control validate-string" value="20 October 2026" placeholder="e.g. 20 October 2026">
+            <span class="field-hint">Only enabled when "Currently Serving Notice" is ON</span>
+            <span class="error-message"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. Compensation & CTC -->
+      <section class="card" id="section-salary">
+        <div class="card-header">
+          <div class="card-icon icon-salary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">5. Compensation & CTC</h2>
+            <p class="card-desc">Current CTC, Expected CTC (in LPA / Annual), and currency</p>
+          </div>
+        </div>
+        <div class="card-body grid-3">
+          <div class="form-group">
+            <label for="salary-currentCTC" class="form-label required">Current CTC (LPA / Annual)</label>
+            <input type="number" id="salary-currentCTC" name="salary.currentCTC" class="form-control validate-numeric validate-required" value="8" min="0" max="200" step="0.5" data-field-title="Current CTC" required>
+            <span class="field-hint">e.g. 8 (represents 8 LPA)</span>
+            <span class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="salary-expectedCTC" class="form-label required">Expected CTC (LPA / Annual)</label>
+            <input type="number" id="salary-expectedCTC" name="salary.expectedCTC" class="form-control validate-numeric validate-required" value="13" min="0" max="300" step="0.5" data-field-title="Expected CTC" required>
+            <span class="field-hint">e.g. 13 (represents 13 LPA)</span>
+            <span class="error-message"></span>
+          </div>
+          <div class="form-group">
+            <label for="salary-currency" class="form-label required">Currency</label>
+            <select id="salary-currency" name="salary.currency" class="form-control">
+              <option value="INR" selected>INR (₹)</option>
+              <option value="USD">USD ($)</option>
+              <option value="EUR">EUR (€)</option>
+              <option value="GBP">GBP (£)</option>
+            </select>
+            <span class="field-hint">Standard currency code</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. Employment Status -->
+      <section class="card" id="section-employment">
+        <div class="card-header">
+          <div class="card-icon icon-employment">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">6. Employment Status</h2>
+            <p class="card-desc">Current employment situation and active job search state</p>
+          </div>
+        </div>
+        <div class="card-body grid-2">
+          <div class="preference-item">
+            <div class="preference-info">
+              <span class="preference-title">Currently Employed</span>
+              <span class="preference-desc">Are you currently working at an organization?</span>
+            </div>
+            <div class="toggle-control">
+              <input type="checkbox" id="answers-employment-currentlyEmployed" name="answers.employment.currentlyEmployed" class="toggle-checkbox" checked>
+              <label for="answers-employment-currentlyEmployed" class="toggle-label"></label>
+            </div>
+          </div>
+          <div class="preference-item">
+            <div class="preference-info">
+              <span class="preference-title">Actively Looking</span>
+              <span class="preference-desc">Are you actively seeking new opportunities?</span>
+            </div>
+            <div class="toggle-control">
+              <input type="checkbox" id="answers-employment-activelyLooking" name="answers.employment.activelyLooking" class="toggle-checkbox" checked>
+              <label for="answers-employment-activelyLooking" class="toggle-label"></label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. Work Preferences & Eligibility -->
+      <section class="card" id="section-work-preferences">
+        <div class="card-header">
+          <div class="card-icon icon-preferences">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">7. Work Preferences & Eligibility</h2>
+            <p class="card-desc">Work authorization, shift flexibility, visa sponsorship, and location willingness</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="grid-2 mb-4">
+            <div class="form-group">
+              <label for="answers-workPreferences-workAuthorization" class="form-label required">Work Authorization Country</label>
+              <input type="text" id="answers-workPreferences-workAuthorization" name="answers.workPreferences.workAuthorization" class="form-control validate-string validate-required" value="India" data-field-title="Work Authorization" required>
+              <span class="field-hint">Country where you are legally authorized to work</span>
+              <span class="error-message"></span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Visa Sponsorship Required?</label>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-visaSponsorshipRequired" name="answers.workPreferences.visaSponsorshipRequired" class="toggle-checkbox">
+                <label for="answers-workPreferences-visaSponsorshipRequired" class="toggle-label"></label>
+                <span class="toggle-status-text">No (Do not require visa sponsorship)</span>
+              </div>
+              <span class="field-hint">Answers "Do you require visa sponsorship?"</span>
+            </div>
+          </div>
+
+          <div class="preferences-grid">
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Willing to Relocate</span>
+                <span class="preference-desc">General willingness to relocate for work</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-willingToRelocate" name="answers.workPreferences.willingToRelocate" class="toggle-checkbox" checked>
+                <label for="answers-workPreferences-willingToRelocate" class="toggle-label"></label>
+              </div>
+            </div>
+
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Night Shift</span>
+                <span class="preference-desc">Comfortable working in night/rotational shifts</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-nightShift" name="answers.workPreferences.nightShift" class="toggle-checkbox" checked>
+                <label for="answers-workPreferences-nightShift" class="toggle-label"></label>
+              </div>
+            </div>
+
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Hybrid Noida</span>
+                <span class="preference-desc">Comfortable with hybrid work model in Noida</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-hybridNoida" name="answers.workPreferences.hybridNoida" class="toggle-checkbox" checked>
+                <label for="answers-workPreferences-hybridNoida" class="toggle-label"></label>
+              </div>
+            </div>
+
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Relocate Gurugram</span>
+                <span class="preference-desc">Willing to relocate / commute to Gurugram</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-relocateGurugram" name="answers.workPreferences.relocateGurugram" class="toggle-checkbox" checked>
+                <label for="answers-workPreferences-relocateGurugram" class="toggle-label"></label>
+              </div>
+            </div>
+
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Relocate Noida</span>
+                <span class="preference-desc">Willing to relocate / commute to Noida</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-relocateNoida" name="answers.workPreferences.relocateNoida" class="toggle-checkbox" checked>
+                <label for="answers-workPreferences-relocateNoida" class="toggle-label"></label>
+              </div>
+            </div>
+
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Relocate Delhi / NCR</span>
+                <span class="preference-desc">Willing to relocate to Delhi/NCR region</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-relocateDelhiNCR" name="answers.workPreferences.relocateDelhiNCR" class="toggle-checkbox" checked>
+                <label for="answers-workPreferences-relocateDelhiNCR" class="toggle-label"></label>
+              </div>
+            </div>
+
+            <div class="preference-item">
+              <div class="preference-info">
+                <span class="preference-title">Travel for In-Person Interview</span>
+                <span class="preference-desc">Willing to travel long distances for interview rounds</span>
+              </div>
+              <div class="toggle-control">
+                <input type="checkbox" id="answers-workPreferences-willingToTravelForInterview" name="answers.workPreferences.willingToTravelForInterview" class="toggle-checkbox">
+                <label for="answers-workPreferences-willingToTravelForInterview" class="toggle-label"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. Ranked Relocation Priorities (Drag & Drop) -->
+      <section class="card" id="section-relocation">
+        <div class="card-header">
+          <div class="card-icon icon-relocation">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">8. Ranked Relocation Priorities (Drag to Reorder)</h2>
+            <p class="card-desc">Drag items to change order. Top-matching city is selected first in radio/select question forms</p>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="add-tag-row mb-3">
+            <select id="new-relocation-select" class="form-control form-control-sm" style="max-width: 320px;">
+              <option value="" disabled selected>Select location to add to ranked priorities...</option>
+              <option value="Remote">Remote</option>
+              <option value="Pune">Pune</option>
+              <option value="Gurugram">Gurugram</option>
+              <option value="Noida">Noida</option>
+              <option value="Delhi/NCR">Delhi/NCR</option>
+              <option value="Bengaluru">Bengaluru</option>
+              <option value="Hyderabad">Hyderabad</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Ahmedabad">Ahmedabad</option>
+              <option value="Jaipur">Jaipur</option>
+              <option value="Lucknow">Lucknow</option>
+              <option value="Chandigarh">Chandigarh</option>
+              <option value="Indore">Indore</option>
+              <option value="Nagpur">Nagpur</option>
+              <option value="Kochi">Kochi</option>
+            </select>
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-relocation-location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add Location
+            </button>
+          </div>
+
+          <div class="ranked-list" id="relocation-locations-list">
+            <!-- Rendered as drag-and-drop items -->
+          </div>
+          <span class="field-hint">Grab the ☰ handle or card to drag and reorder preference priority</span>
+        </div>
+      </section>
+
+      <!-- 9. Technical & Domain Skills -->
+      <section class="card" id="section-skills">
+        <div class="card-header flex-between">
+          <div class="flex-start">
+            <div class="card-icon icon-skills">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">9. Technical & Domain Skills</h2>
+              <p class="card-desc">Years of experience per skill (supports technical & domain skills like Healthcare, FHIR, IHE XDS). 0 = Unsupported/No</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-add-skill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Skill
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="skills-table">
+              <thead>
+                <tr>
+                  <th style="width: 55%;">Skill / Technology / Domain Name</th>
+                  <th style="width: 30%;">Experience (Years)</th>
+                  <th style="width: 15%; text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="skills-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-3 text-right">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-skill-bottom">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Add Skill
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10. Certificates (Optional) -->
+      <section class="card" id="section-certificates">
+        <div class="card-header flex-between">
+          <div class="flex-start">
+            <div class="card-icon icon-salary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="7"></circle>
+                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">10. Certificates & Credentials (Optional)</h2>
+              <p class="card-desc">Professional certifications, issuing organizations, and completion years</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-add-certificate">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Certificate
+          </button>
+        </div>
+        <div class="card-body" id="certificates-container">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- 11. Education & Qualifications -->
+      <section class="card" id="section-education">
+        <div class="card-header flex-between">
+          <div class="flex-start">
+            <div class="card-icon icon-education">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">11. Education & Academic Background</h2>
+              <p class="card-desc">Highest qualification, university / institution, and completion year</p>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-add-education">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Add Education
+          </button>
+        </div>
+        <div class="card-body" id="education-container">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- 12. System Settings & Consent -->
+      <section class="card" id="section-compliance">
+        <div class="card-header">
+          <div class="card-icon icon-compliance">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">12. System Settings & Automation Consent</h2>
+            <p class="card-desc">Automatic portal checkbox consents and timeout configurations</p>
+          </div>
+        </div>
+        <div class="card-body grid-3">
+          <div class="form-group">
+            <label for="answers-certifications-azure" class="form-label">Azure Certified Boolean</label>
+            <select id="answers-certifications-azure" name="answers.certifications.azure" class="form-control">
+              <option value="false" selected>No (false)</option>
+              <option value="true">Yes (true)</option>
+            </select>
+            <span class="field-hint">Answers "Are you Azure certified?"</span>
+          </div>
+
+          <div class="form-group">
+            <label for="answers-consent-privacyPolicy" class="form-label">Privacy Policy Consent</label>
+            <input type="text" id="answers-consent-privacyPolicy" name="answers.consent.privacyPolicy" class="form-control" value="auto">
+            <span class="field-hint">"auto" automatically checks portal privacy policy boxes</span>
+          </div>
+
+          <div class="form-group">
+            <label for="automation-formReadinessTimeoutMs" class="form-label">Form Readiness Timeout (ms)</label>
+            <input type="number" id="automation-formReadinessTimeoutMs" name="automation.formReadinessTimeoutMs" class="form-control validate-integer" value="20000" min="1000" max="60000" step="1000" data-field-title="Form Readiness Timeout">
+            <span class="field-hint">Wait time for modal & chatbot DOM readiness</span>
+            <span class="error-message"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Save Action Bar -->
+      <div class="bottom-action-bar">
+        <div class="action-bar-inner">
+          <div class="status-summary">
+            <span class="status-indicator"></span>
+            <span class="status-text" id="validation-summary-text">Ready to save</span>
+          </div>
+          <div class="action-buttons">
+            <button type="button" class="btn btn-secondary" id="btn-validate-all">Check Validation</button>
+            <button type="button" class="btn btn-primary" id="btn-save-bottom">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Save Configuration
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

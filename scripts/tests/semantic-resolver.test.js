@@ -64,8 +64,8 @@ async function main() {
     const result = await resolveQuietly(question, mock);
     assert.strictEqual(result.status, "RESOLVED");
     assert.strictEqual(result.answer, 3);
-    assert.strictEqual(result.answerSource, 'answers.skills[".NET"]');
-    assert.strictEqual(mock.calls, 1);
+    assert.strictEqual(result.answerSource, 'answers.skills (.NET)');
+    assert.strictEqual(mock.calls, 0, "Deterministic normalization resolves .Net Fullstack without Ollama");
   }
 
   const naukriDotnetMock = ollamaMock(classification("skill_experience_years", ".NET"));
@@ -76,7 +76,7 @@ async function main() {
     { config: llmConfig, fetchImpl: naukriDotnetMock.fetchImpl }
   );
   assert.strictEqual(naukriDotnetAnswer, 3);
-  assert.strictEqual(naukriDotnetMock.calls, 1);
+  assert.strictEqual(naukriDotnetMock.calls, 0);
 
   for (const [question, expected] of [
     ["How many years have you worked with Angular?", 3],
@@ -110,7 +110,7 @@ async function main() {
     const mock = ollamaMock(classification("skill_experience_years", skill));
     const result = await resolveQuietly(question, mock);
     assert.strictEqual(result.status, "RESOLVED", `Expected configured zero answer for ${question}`);
-    assert.strictEqual(result.answer, applicationConfig.answers.skills[skill]);
+    assert.strictEqual(result.answer, applicationConfig.answers.skills[skill] ?? 0);
   }
 
   const rorNaukriAnswer = await naukriAgent.resolveNaukriAnswer(
@@ -118,10 +118,10 @@ async function main() {
     applicationConfig,
     {}
   );
-  assert.strictEqual(rorNaukriAnswer, "NA");
+  assert.strictEqual(rorNaukriAnswer, 0);
 
   const unknownMock = ollamaMock(classification("unknown", null, 0.2));
-  const unknown = await resolveQuietly("How many years of experience across open-source platforms?", unknownMock);
+  const unknown = await resolveQuietly("How many years of experience in an unfamiliar stack?", unknownMock);
   assert.strictEqual(unknown.status, "NEEDS_USER_INPUT");
   assert.strictEqual(unknownMock.calls, 1);
 
@@ -130,26 +130,26 @@ async function main() {
   assert.strictEqual(unconfigured.status, "NEEDS_USER_INPUT");
 
   const lowConfidenceMock = ollamaMock(classification("skill_experience_years", ".NET", 0.6));
-  const lowConfidence = await resolveQuietly("How many years of experience in .Net Fullstack?", lowConfidenceMock);
+  const lowConfidence = await resolveQuietly("How many years of experience in an unfamiliar stack?", lowConfidenceMock);
   assert.strictEqual(lowConfidence.status, "NEEDS_USER_INPUT");
 
   const malformedMock = ollamaMock("not valid json");
-  const malformed = await resolveQuietly("How many years of experience in .Net Fullstack?", malformedMock);
+  const malformed = await resolveQuietly("How many years of experience in an unfamiliar stack?", malformedMock);
   assert.strictEqual(malformed.status, "NEEDS_USER_INPUT");
 
-  const unavailable = await resolveQuietly("How many years of experience in .Net Fullstack?", {
+  const unavailable = await resolveQuietly("How many years of experience in an unfamiliar stack?", {
     fetchImpl: async () => { throw new Error("connection refused"); }
   });
   assert.strictEqual(unavailable.status, "NEEDS_USER_INPUT");
   const unavailableNaukriAnswer = await naukriAgent.resolveNaukriAnswer(
-    "How many years of experience across open-source platforms?",
+    "How many years of experience in an unfamiliar stack?",
     applicationConfig,
     {},
     { config: llmConfig, fetchImpl: async () => { throw new Error("connection refused"); } }
   );
   assert.strictEqual(unavailableNaukriAnswer, undefined);
 
-  const timeoutResult = await resolveQuietly("How many years of experience in .Net Fullstack?", {
+  const timeoutResult = await resolveQuietly("How many years of experience in an unfamiliar stack?", {
     fetchImpl: async (url, request) => new Promise((resolve, reject) => {
       request.signal.addEventListener("abort", () => reject(new Error("request timed out")), { once: true });
     })
@@ -170,7 +170,7 @@ async function main() {
     answer: 99,
     path: "answers.experience.totalYears"
   });
-  const extraField = await resolveQuietly("How many years of experience in .Net Fullstack?", extraFieldMock);
+  const extraField = await resolveQuietly("How many years of experience in an unfamiliar stack?", extraFieldMock);
   assert.strictEqual(extraField.status, "RESOLVED");
   assert.strictEqual(extraField.answer, 3);
   assert.strictEqual(extraField.answerSource, 'answers.skills[".NET"]');

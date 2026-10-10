@@ -1,11 +1,4 @@
 {
-  "_instructions": {
-    "description": "Copy this file to config/application.json and replace the example/default values with your own truthful information.",
-    "experienceRule": "Use numeric years for total/skill experience. Use 0 when you do not have that skill.",
-    "qwenRule": "Qwen is only a fallback for questions that cannot be answered safely from this file and the resume.",
-    "doNotGuess": "Never enter guessed personal information. Leave unresolved questions for user input."
-  },
-
   "automation": {
     "formReadinessTimeoutMs": 20000
   },
@@ -29,7 +22,7 @@
 
     "contact": {
       "location": "Pune",
-      "preferredLocation": "Pune, Noida, Gurugram, Delhi/NCR",
+      "preferredLocation": "Pune, Noida, Gurugram, Delhi, Mumbai, Bangalore, Hyderabad",
       "currentLocation": "Pune"
     },
 
@@ -52,28 +45,28 @@
     },
 
     "workPreferences": {
-      "willingToRelocate": true,
-      "workAuthorization": "India",
-      "visaSponsorshipRequired": false,
-      "nightShift": true,
-      "hybridNoida": true,
-      "relocateGurugram": true,
-      "relocateNoida": true,
-      "relocateDelhiNCR": true,
-      "willingToTravelForInterview": false
-    },
+    "willingToRelocate": true,
+    "workAuthorization": "India",
+    "visaSponsorshipRequired": false,
+    "nightShift": true,
+    "hybridNoida": true,
+    "relocateGurugram": true,
+    "relocateNoida": true,
+    "relocateDelhiNCR": true,
+    "willingToTravelForInterview": false
+  },
 
     "relocation": {
       "willingToRelocate": true,
       "locations": [
-        "Remote",
+        "Remote", 
         "Pune",
         "Gurugram",
         "Noida",
         "Delhi/NCR"
       ]
     },
-
+    
     "certifications": {
       "azure": false
     },
@@ -127,6 +120,7 @@
       "Jasmine": 3,
       "Postman": 3,
       "Bruno": 3,
+      "SDET":3,
 
       "Go": 0,
       "React": 0,
@@ -139,7 +133,23 @@
       "Docker": 0,
       "Kubernetes": 0,
       "Machine Learning": 0,
-      "MLOps": 0
+      "Open Source": 0,
+      "MLOps": 0,
+      "FastAPI": 0,
+      "Python": 0,
+      "NumPy": 0,
+      "Pandas": 0,
+      "AI Tools": 3,
+      "SEO": 0,
+      "SEO Pages": 0,
+      "AVEVA SDK": 0,
+      "GenAI": 3,
+      "LLM": 3,
+      "RAG": 3,
+      "Generative AI": 3,
+      "Ruby": 0,
+      "Ruby on Rails": 0,
+      "Django": 0
     },
 
     "domain": {
@@ -153,7 +163,7 @@
     "education": {
       "highestQualification": "MCA",
       "degree": "Master of Computer Applications",
-      "institution": "Example University",
+      "institution": null,
       "graduationYear": 2023,
       "additionalQualification": "Diploma in Advanced Computing (DAC)",
       "additionalQualificationYear": 2024

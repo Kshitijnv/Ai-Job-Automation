@@ -63,27 +63,26 @@ async function runTests() {
   assert.strictEqual(questionMapper.normalizedSkillName("Ruby & Rails"), "ruby on rails");
   console.log("✓ Test 4 Passed: ROR and aliases recognized as 'Ruby on Rails'");
 
-  // 5. Ruby on Rails unsupported experience -> NA when free-text/contenteditable
+  // 5. Ruby on Rails experience -> 0 (Primary Business Rule: absent/unconfigured = 0)
   const agentAnswer4 = await naukriAgent.resolveNaukriAnswer(q4, applicationConfig, {});
-  assert.strictEqual(agentAnswer4, "NA", "resolveNaukriAnswer for Ror must be 'NA'");
+  assert.strictEqual(agentAnswer4, 0, "resolveNaukriAnswer for Ror must be 0");
   const details4 = await naukriAgent.resolveNaukriAnswerDetails(q4, applicationConfig, {});
-  assert.strictEqual(details4.answer, "NA");
-  assert.strictEqual(naukriAgent.isRorOrSafeNaSkill(details4.semantic), true);
+  assert.strictEqual(details4.answer, 0);
 
   const browser = await chromium.launch({ channel: "msedge", headless: true });
   try {
     const page = await browser.newPage();
 
-    // Test text_input / contenteditable with ROR
+    // Test text_input / contenteditable with ROR -> fills 0
     await page.setContent(`<div class="chatbot_MessageContainer"><div class="botMsg msg">${q4}</div><input type="text" /></div>`);
     let controls = await naukriAgent.discoverNaukriAnswerControls(page.locator(".chatbot_MessageContainer"), details4.semantic);
     let applied = await naukriAgent.applyNaukriAnswerControl(controls, details4.semantic, details4.answer);
     assert.strictEqual(applied.status, "APPLIED");
-    assert.strictEqual(applied.answer, "NA");
-    assert.strictEqual(await controls.control.inputValue(), "NA");
-    console.log("✓ Test 5 Passed: Free-text input for Ror entered 'NA'");
+    assert.strictEqual(applied.answer, "0");
+    assert.strictEqual(await controls.control.inputValue(), "0");
+    console.log("✓ Test 5 Passed: Free-text input for Ror entered '0'");
 
-    // 6. ROR with explicit NA option: select NA
+    // 6. ROR with 0-range option: select 0-1
     await page.setContent(`
       <div class="chatbot_MessageContainer">
         <div class="botMsg msg">${q4}</div>
@@ -91,31 +90,30 @@ async function runTests() {
           <option value="">Select</option>
           <option value="0-1">0-1 years</option>
           <option value="1-3">1-3 years</option>
-          <option value="na">Not Applicable</option>
         </select>
       </div>
     `);
     controls = await naukriAgent.discoverNaukriAnswerControls(page.locator(".chatbot_MessageContainer"), details4.semantic);
     applied = await naukriAgent.applyNaukriAnswerControl(controls, details4.semantic, details4.answer);
     assert.strictEqual(applied.status, "APPLIED");
-    assert.strictEqual(applied.answer, "Not Applicable");
-    assert.strictEqual(await controls.control.inputValue(), "na");
+    assert.strictEqual(applied.answer, "0-1 years");
+    assert.strictEqual(await controls.control.inputValue(), "0-1");
 
-    // Radio group with explicit NA option
+    // Radio group with 0 / Fresher option
     await page.setContent(`
       <div class="chatbot_MessageContainer">
         <div class="botMsg msg">${q4}</div>
+        <label><input type="radio" name="ror_exp" value="Fresher" /> Fresher</label>
         <label><input type="radio" name="ror_exp" value="1-3" /> 1-3 years</label>
-        <label><input type="radio" name="ror_exp" value="NA" /> NA</label>
       </div>
     `);
     controls = await naukriAgent.discoverNaukriAnswerControls(page.locator(".chatbot_MessageContainer"), details4.semantic);
     applied = await naukriAgent.applyNaukriAnswerControl(controls, details4.semantic, details4.answer);
     assert.strictEqual(applied.status, "APPLIED");
-    assert.strictEqual(applied.answer, "NA");
-    console.log("✓ Test 6 Passed: Explicit NA option selected for ROR");
+    assert.strictEqual(applied.answer, "Fresher");
+    console.log("✓ Test 6 Passed: Fresher/0 option selected for ROR");
 
-    // 7. ROR with numeric/range control and no NA: do not force NA; return NEEDS_USER_INPUT
+    // 7. ROR with numeric/range control having no 0 option: returns NEEDS_USER_INPUT
     await page.setContent(`
       <div class="chatbot_MessageContainer">
         <div class="botMsg msg">${q4}</div>
@@ -129,9 +127,9 @@ async function runTests() {
     `);
     controls = await naukriAgent.discoverNaukriAnswerControls(page.locator(".chatbot_MessageContainer"), details4.semantic);
     applied = await naukriAgent.applyNaukriAnswerControl(controls, details4.semantic, details4.answer);
-    assert.strictEqual(applied.status, "NEEDS_USER_INPUT", "Must return NEEDS_USER_INPUT when range control has no NA option");
+    assert.strictEqual(applied.status, "NEEDS_USER_INPUT", "Must return NEEDS_USER_INPUT when range control has no 0 option");
 
-    // Native select with only numeric options
+    // Native select with only 1+ numeric options
     await page.setContent(`
       <div class="chatbot_MessageContainer">
         <div class="botMsg msg">${q4}</div>
@@ -144,7 +142,7 @@ async function runTests() {
     `);
     controls = await naukriAgent.discoverNaukriAnswerControls(page.locator(".chatbot_MessageContainer"), details4.semantic);
     applied = await naukriAgent.applyNaukriAnswerControl(controls, details4.semantic, details4.answer);
-    assert.strictEqual(applied.status, "NEEDS_USER_INPUT", "Must return NEEDS_USER_INPUT when select control has no NA option");
+    assert.strictEqual(applied.status, "NEEDS_USER_INPUT", "Must return NEEDS_USER_INPUT when select control has no 0 option");
     // Relocation radio_group tests (Issue 2)
     const relocationQuestion = "Which of these locations are you willing to relocate to?";
     const relocationDetails = await naukriAgent.resolveNaukriAnswerDetails(relocationQuestion, applicationConfig, {});

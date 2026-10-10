@@ -1,5 +1,5 @@
 const questionMapper = require("./question-mapper");
-const semanticResolver = require("./semantic-resolver");
+const questionResolver = require("./llm/question-resolver");
 
 const KNOWN_FIELDS = {
   firstName: ["first name", "given name", "forename"],
@@ -93,33 +93,31 @@ async function describeField(locator) {
     const labels = element.labels ? Array.from(element.labels).map(item => item.innerText).join(" ") : "";
     const labelledBy = (element.getAttribute("aria-labelledby") || "")
       .split(/\s+/).map(labelId => document.getElementById(labelId)?.innerText || "").join(" ");
-    const radioGroup = element.getAttribute("role") === "radio" ? element.closest("[role='radiogroup']") : null;
+    const radioGroup = element.getAttribute("role") === "radio" ? element.closest("[role='radiogroup'], fieldset") : null;
     const groupLabelledBy = (radioGroup?.getAttribute("aria-labelledby") || "")
       .split(/\s+/).map(labelId => document.getElementById(labelId)?.innerText || "").join(" ");
+    const groupHeading = radioGroup?.querySelector("h1, h2, h3, h4, h5, h6, [role='heading'], [data-test-form-builder-radio-button-form-component__title], [class*='title'], [class*='label']")?.innerText || "";
     const groupLabel = radioGroup?.getAttribute("aria-label") || groupLabelledBy
-      || radioGroup?.closest("fieldset")?.querySelector("legend")?.innerText || "";
+      || radioGroup?.closest("fieldset")?.querySelector("legend")?.innerText
+      || groupHeading || "";
     const fieldContainer = element.closest(".field, .form-group, .application-question, fieldset, [data-automation-id*='formField'], [class*='field']");
     let nearbyQuestionText = "";
     let nearby = element.parentElement;
     for (let depth = 0; nearby && depth < 5; depth++, nearby = nearby.parentElement) {
       const controls = nearby.querySelectorAll("input:not([type=hidden]), textarea, select, [role=radio]").length;
-      const text = (nearby.innerText || "").replace(/\\s+/g, " ").trim();
+      const text = (nearby.innerText || "").replace(/\s+/g, " ").trim();
       if (controls === 1 && text.length > 0 && text.length <= 180) {
         nearbyQuestionText = text;
         break;
       }
-            if (semantic.status === "RESOLVED" && semantic.intent === "notice_period_with_lwd") {
-              const days = Number(semantic.values?.noticePeriodDays);
-              const lastWorkingDay = String(semantic.values?.lastWorkingDay || "").trim();
-              if (Number.isFinite(days) && lastWorkingDay) answer = `${days} days, LWD: ${lastWorkingDay}`;
-            }
     }
+    const visibleText = (element.innerText || "").replace(/\s+/g, " ").trim();
     const securityParts = [...new Set([groupLabel, legend, labels, label?.innerText, parentLabel?.innerText, labelledBy,
       element.getAttribute("aria-label"), element.getAttribute("placeholder")]
-      .map(value => (value || "").replace(/\\s+/g, " ").trim()).filter(Boolean))];
+      .map(value => (value || "").replace(/\s+/g, " ").trim()).filter(Boolean))];
     const securityLabel = securityParts.join(" ");
     const labelText = securityParts.length ? securityParts : [fieldContainer?.innerText || nearbyQuestionText].filter(Boolean);
-    if (!labelText.length) labelText.push(element.getAttribute("name") || id);
+    if (!labelText.length) labelText.push(element.getAttribute("name") || id || visibleText);
     return {
       id,
       name: element.getAttribute("name") || "",
@@ -127,7 +125,7 @@ async function describeField(locator) {
       type: (element.getAttribute("type") || (element.getAttribute("role") === "radio" ? "radio" : element.tagName)).toLowerCase(),
       label: labelText.join(" "),
       required: element.required || element.getAttribute("aria-required") === "true" || radioGroup?.getAttribute("aria-required") === "true",
-      value: element.value || (element.getAttribute("role") === "radio" ? element.innerText || element.getAttribute("aria-label") || "" : ""),
+      value: element.value || (element.getAttribute("role") === "radio" ? visibleText || element.getAttribute("aria-label") || "" : ""),
       checked: Boolean(element.checked) || element.getAttribute("aria-checked") === "true",
       maxLength: Number(element.maxLength) > 0 ? Number(element.maxLength) : null,
       options: element.tagName === "SELECT"
@@ -160,8 +158,12 @@ function targetForLabel(label, aliases, values) {
 async function currentValue(locator, type) {
   try {
     if (type === "checkbox" || type === "radio") {
-      const checked = await locator.isChecked().catch(() => locator.getAttribute("aria-checked").then(value => value === "true"));
-      return checked ? "checked" : "";
+      const isChecked = await locator.isChecked().catch(() => null);
+      if (typeof isChecked === "boolean") return isChecked ? "checked" : "";
+      const ariaChecked = await locator.getAttribute("aria-checked").catch(() => null);
+      if (ariaChecked === "true") return "checked";
+      const checkedAttr = await locator.evaluate(el => el.checked || el.getAttribute("aria-checked") === "true" || el.querySelector("[role='radio'][aria-checked='true'], input[type='radio']:checked") !== null).catch(() => false);
+      return checkedAttr ? "checked" : "";
     }
     return String(await locator.inputValue()).trim();
   } catch {
@@ -223,16 +225,29 @@ async function setFieldValue(locator, descriptor, value, key) {
     let options = group.locator("[role=radio]");
     if (!await options.count()) {
       group = locator.locator("xpath=ancestor::fieldset[1]");
-      options = group.locator("input[type=radio]");
+      options = group.locator("[role=radio]");
+      if (!await options.count()) {
+        options = group.locator("input[type=radio]");
+      }
     }
     for (let index = 0; index < await options.count(); index++) {
       const option = options.nth(index);
       const info = await describeField(option);
       const optionLabel = normalize(`${info.value} ${info.label}`);
-      if (optionLabel.includes(normalize(desired))) {
+      if (optionLabel.includes(normalize(desired)) || normalize(desired).includes(optionLabel)) {
         if (!await currentValue(option, "radio")) {
-          if (await option.getAttribute("role") === "radio") await option.click();
-          else await option.check();
+          if (await option.getAttribute("role") === "radio") {
+            await option.click();
+            const isChecked = await option.evaluate(el => el.getAttribute("aria-checked") === "true").catch(() => false);
+            if (!isChecked) {
+              const inner = option.locator("input[type='radio'], label, p").first();
+              if (await inner.count().catch(() => 0)) {
+                await inner.click({ force: true }).catch(() => {});
+              }
+            }
+          } else {
+            await option.check();
+          }
         }
         return true;
       }
@@ -246,7 +261,8 @@ async function setFieldValue(locator, descriptor, value, key) {
     const options = descriptor.options;
     const desired = normalize(valueText);
     const option = options.find(item => normalize(item.label || item.text) === desired)
-      || options.find(item => normalize(item.label || item.text).includes(desired) && desired);
+      || options.find(item => normalize(item.label || item.text).includes(desired) && desired)
+      || options.find(item => desired.includes(normalize(item.label || item.text)) && normalize(item.label || item.text));
     if (!option) return false;
     await locator.selectOption(option.value);
     return true;
@@ -293,7 +309,194 @@ async function fillConfiguredFields(page, applicationConfig, scopeRoot = null) {
 
 async function fillSemanticQuestions(page, sources = {}, scopeRoot = null) {
   const resolved = [];
+  const applicationConfig = sources.applicationConfig || {};
+  const profile = sources.profile || {};
+  const resume = sources.resumeData || sources.resume || profile.resume || profile.candidate?.resume || {};
+
   for (const frame of framesFor(page, scopeRoot)) {
+    // 1. Process Radio Groups
+    const radioGroups = frame.locator("[role='radiogroup'], fieldset:has(input[type='radio']), fieldset:has([role='radio'])");
+    for (let gIndex = 0; gIndex < await radioGroups.count().catch(() => 0); gIndex++) {
+      const groupLocator = radioGroups.nth(gIndex);
+      try {
+        if (!await groupLocator.isVisible().catch(() => false)) continue;
+        const groupInfo = await groupLocator.evaluate(group => {
+          const labelledBy = (group.getAttribute("aria-labelledby") || "").split(/\s+/)
+            .map(id => document.getElementById(id)?.innerText || "").join(" ").trim();
+          const legend = group.querySelector("legend")?.innerText || "";
+          const ariaLabel = group.getAttribute("aria-label") || "";
+          const heading = group.querySelector("h1, h2, h3, h4, h5, h6, [role='heading'], [data-test-form-builder-radio-button-form-component__title], [class*='title'], [class*='label']")?.innerText || "";
+          let question = (legend || ariaLabel || labelledBy || heading || "").replace(/\s+/g, " ").trim();
+          if (!question) {
+            const prev = group.previousElementSibling;
+            if (prev && prev.innerText) {
+              question = prev.innerText.replace(/\s+/g, " ").trim();
+            }
+          }
+          if (!question) {
+            const parent = group.closest(".fb-form-element, [class*='form-element'], .artdeco-form-item");
+            if (parent) {
+              const parentLabel = parent.querySelector("label, legend, [class*='title'], [class*='label']");
+              if (parentLabel) question = (parentLabel.innerText || "").replace(/\s+/g, " ").trim();
+            }
+          }
+
+          const roleRadios = Array.from(group.querySelectorAll("[role='radio']"));
+          const inputRadios = Array.from(group.querySelectorAll("input[type='radio']"));
+          const isRoleRadio = roleRadios.length > 0;
+          const radioElements = isRoleRadio ? roleRadios : inputRadios;
+
+          const radios = radioElements.map((radio, idx) => {
+            let rLabel = "";
+            if (isRoleRadio) {
+              const clone = radio.cloneNode(true);
+              clone.querySelectorAll("input, label:empty").forEach(el => el.remove());
+              const cleanText = (clone.innerText || clone.textContent || "").replace(/\s+/g, " ").trim();
+              rLabel = cleanText || radio.getAttribute("aria-label") || "";
+            } else {
+              rLabel = (radio.getAttribute("aria-label")
+                || (radio.getAttribute("aria-labelledby") || "").split(/\s+/).map(id => document.getElementById(id)?.innerText || "").join(" ")
+                || Array.from(radio.labels || []).map(l => l.innerText).join(" ")
+                || radio.closest("label")?.innerText
+                || radio.parentElement?.innerText
+                || radio.value
+                || "").replace(/\s+/g, " ").trim();
+            }
+            const checked = radio instanceof HTMLInputElement
+              ? radio.checked
+              : radio.getAttribute("aria-checked") === "true";
+            return { index: idx, label: rLabel, value: radio.value || rLabel, checked };
+          });
+          return { question, options: radios, isRoleRadio };
+        }).catch(() => null);
+
+        if (!groupInfo || !groupInfo.question || !groupInfo.options.length) continue;
+        if (questionMapper.sensitiveField(groupInfo.question)) continue;
+
+        const options = groupInfo.options.map(o => o.label);
+        const resolution = await questionResolver.resolveQuestion({
+          question: groupInfo.question,
+          controlType: "radio_group",
+          options,
+          applicationConfig,
+          profile,
+          resume
+        });
+
+        if (resolution && resolution.status === "RESOLVED") {
+          let matchIndex = resolution.validation?.index;
+          if (matchIndex === undefined || matchIndex === null || matchIndex < 0) {
+            const matched = questionResolver.findMatchingOption(resolution.answer, groupInfo.options);
+            if (matched) matchIndex = matched.index;
+          }
+
+          if (matchIndex !== undefined && matchIndex !== null && matchIndex >= 0 && matchIndex < groupInfo.options.length) {
+            const selector = groupInfo.isRoleRadio ? "[role='radio']" : "input[type='radio']";
+            const targetRadio = groupLocator.locator(selector).nth(matchIndex);
+            if (await targetRadio.isVisible().catch(() => false)) {
+              let verified = false;
+
+              if (groupInfo.isRoleRadio) {
+                // Preferred click target: [role="radio"] wrapper
+                await targetRadio.click().catch(() => {});
+                let isChecked = await targetRadio.evaluate(el => el.getAttribute("aria-checked") === "true").catch(() => false);
+
+                if (!isChecked) {
+                  // Fallback: click nested input, label, or paragraph
+                  const inner = targetRadio.locator("input[type='radio'], label, p").first();
+                  if (await inner.count().catch(() => 0)) {
+                    await inner.click({ force: true }).catch(() => {});
+                  } else {
+                    await targetRadio.evaluate(el => el.click()).catch(() => {});
+                  }
+                  isChecked = await targetRadio.evaluate(el => el.getAttribute("aria-checked") === "true").catch(() => false);
+                }
+                verified = isChecked;
+              } else {
+                await targetRadio.check().catch(async () => {
+                  await targetRadio.click().catch(() => {});
+                });
+                verified = await targetRadio.isChecked().catch(() => false);
+              }
+
+              const chosenOption = groupInfo.options[matchIndex]?.label || resolution.answer;
+              console.log(`Question: ${groupInfo.question}`);
+              console.log(`Control: radio_group`);
+              console.log(`Options: ${JSON.stringify(options)}`);
+              console.log(`Resolved answer: ${resolution.answer}`);
+              console.log(`Selected option: ${chosenOption}`);
+              console.log(`Verified: ${verified}`);
+
+              if (verified) {
+                const canonicalId = questionMapper.canonicalQuestion(groupInfo.question);
+                resolved.push(canonicalId || `question:${normalize(groupInfo.question)}`);
+              }
+            }
+          }
+        }
+      } catch (err) {}
+    }
+
+    // 2. Process Checkbox Groups (fieldsets or groups with multiple checkboxes)
+    const checkboxGroups = frame.locator("fieldset:has(input[type='checkbox']), fieldset:has([role='checkbox']), [role='group']:has(input[type='checkbox']), [role='group']:has([role='checkbox'])");
+    for (let cgIndex = 0; cgIndex < await checkboxGroups.count().catch(() => 0); cgIndex++) {
+      const cgLocator = checkboxGroups.nth(cgIndex);
+      try {
+        if (!await cgLocator.isVisible().catch(() => false)) continue;
+        const cbCount = await cgLocator.locator("input[type='checkbox'], [role='checkbox']").count().catch(() => 0);
+        if (cbCount <= 1) continue;
+
+        const cgInfo = await cgLocator.evaluate(group => {
+          const legend = group.querySelector("legend")?.innerText || "";
+          const ariaLabel = group.getAttribute("aria-label") || "";
+          const heading = group.querySelector("h1, h2, h3, h4, h5, h6, [role='heading']")?.innerText || "";
+          const question = (legend || ariaLabel || heading || "").replace(/\s+/g, " ").trim();
+          const checkboxes = Array.from(group.querySelectorAll("input[type='checkbox'], [role='checkbox']")).map((cb, idx) => {
+            const label = (cb.getAttribute("aria-label")
+              || Array.from(cb.labels || []).map(l => l.innerText).join(" ")
+              || cb.closest("label")?.innerText
+              || cb.parentElement?.innerText
+              || cb.value
+              || "").replace(/\s+/g, " ").trim();
+            return { index: idx, label, value: cb.value || label };
+          });
+          return { question, options: checkboxes };
+        }).catch(() => null);
+
+        if (!cgInfo || !cgInfo.question || !cgInfo.options.length) continue;
+        if (questionMapper.sensitiveField(cgInfo.question)) continue;
+
+        const options = cgInfo.options.map(o => o.label);
+        const resolution = await questionResolver.resolveQuestion({
+          question: cgInfo.question,
+          controlType: "checkbox_group",
+          options,
+          applicationConfig,
+          profile,
+          resume
+        });
+
+        if (resolution && resolution.status === "RESOLVED") {
+          const matchedAnswers = Array.isArray(resolution.answer) ? resolution.answer : [resolution.answer];
+          for (const opt of cgInfo.options) {
+            const isMatch = matchedAnswers.some(ans =>
+              questionResolver.findMatchingOption(ans, [opt])
+              || questionResolver.findMatchingOption(opt.label, [{ label: String(ans), value: String(ans) }])
+            );
+            if (isMatch) {
+              const cb = cgLocator.locator("input[type='checkbox'], [role='checkbox']").nth(opt.index);
+              if (await cb.isVisible().catch(() => false)) {
+                await cb.setChecked(true).catch(() => cb.click());
+              }
+            }
+          }
+          const canonicalId = questionMapper.canonicalQuestion(cgInfo.question);
+          resolved.push(canonicalId || `question:${normalize(cgInfo.question)}`);
+        }
+      } catch (err) {}
+    }
+
+    // 3. Process remaining controls (Select, text/number/textarea inputs, single checkboxes)
     const controls = frame.locator(FORM_CONTROL_SELECTOR);
     for (let index = 0; index < await controls.count(); index++) {
       const locator = controls.nth(index);
@@ -301,37 +504,52 @@ async function fillSemanticQuestions(page, sources = {}, scopeRoot = null) {
         if (!(await locator.isVisible()) || !(await locator.isEnabled())) continue;
         const descriptor = await describeField(locator);
         if (questionMapper.sensitiveField(descriptor.securityLabel, descriptor.name, descriptor.id, descriptor.type)) continue;
+
+        if (descriptor.type === "radio") continue;
+
         const canonicalOptions = { experienceYearsRule: Boolean(sources.experienceYearsRule) };
         const canonicalId = questionMapper.canonicalQuestion(descriptor.label, canonicalOptions)
           || questionMapper.canonicalQuestion(`${descriptor.name} ${descriptor.id}`, canonicalOptions);
         if (canonicalId === "resume_upload") continue;
 
-        const semantic = await semanticResolver.resolveSemanticAnswer(descriptor.label, sources);
-        const unsafeSkillResolution = [
-          "unknown_skill_experience",
-          "unknown_skill_boolean",
-          "compound_skill_experience",
-          "compound_skill_boolean"
-        ].includes(semantic.intent);
-        let answer = semantic.status === "RESOLVED" ? semantic.answer : undefined;
-        const unresolvedSemanticCandidate = semanticResolver.isSemanticFallbackCandidate(descriptor.label)
-          && semantic.status !== "RESOLVED";
-        if (answer === undefined && canonicalId && !unsafeSkillResolution && !unresolvedSemanticCandidate) {
-          answer = questionMapper.resolveConfiguredAnswer(canonicalId, {
-            ...sources,
-            question: descriptor.label
-          });
+        let controlType = descriptor.type;
+        let options = [];
+        if (descriptor.type === "select") {
+          controlType = "select";
+          options = (descriptor.options || []).map(o => o.text || o.label || o.value);
+        } else if (descriptor.type === "checkbox") {
+          controlType = "checkbox";
+          options = ["Yes", "No"];
+        } else if (descriptor.type === "number") {
+          controlType = "number";
+        } else if (descriptor.type === "textarea") {
+          controlType = "textarea";
+        } else {
+          controlType = "text";
         }
-        if (answer === undefined || answer === null || answer === "") continue;
-        const resolvedKey = canonicalId || `question:${normalize(descriptor.label)}`;
-        if (await semanticValueAlreadySet(locator, descriptor, answer)) {
-          resolved.push(resolvedKey);
+
+        const isFilled = await currentValue(locator, descriptor.type);
+        if (isFilled && isFilled !== "unchecked") {
+          if (canonicalId) resolved.push(canonicalId);
           continue;
         }
-        if (await setFieldValue(locator, descriptor, answer, canonicalId)) resolved.push(resolvedKey);
-      } catch {
-        // Keep an unresolved semantic question available for review if a control changes mid-fill.
-      }
+
+        const resolution = await questionResolver.resolveQuestion({
+          question: descriptor.label,
+          controlType,
+          options,
+          applicationConfig,
+          profile,
+          resume
+        });
+
+        if (resolution && resolution.status === "RESOLVED") {
+          const resolvedKey = canonicalId || `question:${normalize(descriptor.label)}`;
+          if (await setFieldValue(locator, descriptor, resolution.answer, canonicalId)) {
+            resolved.push(resolvedKey);
+          }
+        }
+      } catch (err) {}
     }
   }
   return [...new Set(resolved)];
